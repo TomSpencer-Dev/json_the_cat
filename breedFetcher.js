@@ -1,17 +1,20 @@
-const args = process.argv.slice(2);
+//create variable "request" to utilize request function from node
 const request = require("request");
-const breed = args[0];
-const URL = "https://api.thecatapi.com/v1/breeds/search?q=" + breed;
 
-request(URL, function(error, response, body) {
-  if (error) {
-    console.log("Failed to request details.", error);
-    return;
-  }
-  const data = JSON.parse(body);
-  if (data.length === 0) {
-    console.log('Breed not found');
-  } else {
-    console.log(data[0]["description"]);
-  }
-});
+
+
+const fetchBreedDescription = function(breedName, callback) {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, function(error, response, body) {
+    if (error) {
+      return callback(error, null);
+    }
+    const [data] = JSON.parse(body);
+    if (!data) {
+      let error = 'Breed not found';
+      return callback(error, null);
+    }
+    callback(null, data.description);
+  });
+};
+
+module.exports = { fetchBreedDescription };
